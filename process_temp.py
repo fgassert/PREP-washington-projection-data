@@ -25,19 +25,20 @@ def process_temp(matfile, outcsv):
     rcp45 = pd.DataFrame(mat['tas_rcp45_yrly'], columns=rcp45_names, index=future_years)
     rcp85 = pd.DataFrame(mat['tas_rcp85_yrly'], columns=rcp85_names, index=future_years)
 
+    print rcp85
     # compute ensemble means
     hist['AVG_HIST'] = np.mean(hist,1)
     rcp45['AVG_RCP45'] = np.mean(rcp45,1)
     rcp85['AVG_RCP85'] = np.mean(rcp85,1)
 
     # compute baseline
-    baseline = np.mean(hist['AVG_HIST'])
+    baseline = np.mean(hist['AVG_HIST'].ix[1950:1999]) * 9 / 5.0 + 32
 
     # join dataframes
     joined = hist.join(rcp45, how='outer').join(rcp85)
 
     # convert from deg C to deg F and compute difference from baseline
-    joined = (joined - baseline) * 9 / 5.0 + 32
+    joined = (joined * 9 / 5.0 + 32) - baseline
 
     # plot test chart
     pylab.plot(joined.index, joined['AVG_HIST'], '-')
